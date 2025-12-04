@@ -28,7 +28,6 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable) // Necesario para que funcionen los POST desde Postman/Angular
                 .authorizeHttpRequests(auth -> auth
                         // IMPORTANTE: Permitimos crear usuarios (POST) sin login inicial para que puedas registrarte
-                        // OJO: En producción esto debería estar protegido, pero para el MVP facilita las cosas.
                         .requestMatchers("/api/users").permitAll()
                         // Cualquier otra cosa requiere login
                         .anyRequest().authenticated()

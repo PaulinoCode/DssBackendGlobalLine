@@ -50,7 +50,7 @@ public class PredictionService {
             Formula formula = Formula.of("SalesUnits", "AdSpend");
             var model = OLS.fit(formula, df);
 
-            // Predecir usando el método que acepta el vector de predictores
+            // Predecir usando el metodo que acepta el vector de predictores
             double predictedSales = model.predict(new double[]{futureAdSpend});
 
             Map<String, Object> result = new HashMap<>();

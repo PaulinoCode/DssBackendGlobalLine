@@ -18,14 +18,17 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    // Listar todos
     public List<User> findAll() {
         return userRepository.findAll();
     }
 
+    // Buscar por ID
     public User findById(Long id) {
         return userRepository.findById(id).orElseThrow(() -> new RuntimeException("No encontrado"));
     }
 
+    // Buscar por Email
     public User createUser(User user) {
         // Antes de guardar, encriptamos la contraseña
         String passwordEncriptada = passwordEncoder.encode(user.getPassword());
@@ -33,6 +36,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    // Actualizar
     public User updateUser(Long id, User userDetails) {
         User user = findById(id);
         user.setName(userDetails.getName());
@@ -46,6 +50,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    // Eliminar
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }

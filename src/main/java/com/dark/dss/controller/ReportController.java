@@ -17,8 +17,7 @@ public class ReportController {
         this.reportService = reportService;
     }
 
-    // Descargar PDF
-    // GET http://localhost:8080/api/reports/prediction-pdf
+    // Descargar PDF con Predicciones de Ventas
     @GetMapping("/prediction-pdf")
     public ResponseEntity<byte[]> downloadPdf() {
         try {
@@ -33,8 +32,7 @@ public class ReportController {
         }
     }
 
-    // Descargar Excel
-    // GET http://localhost:8080/api/reports/metrics-excel
+    // Descargar Excel con Histórico de Métricas
     @GetMapping("/metrics-excel")
     public ResponseEntity<byte[]> downloadExcel() {
         try {
@@ -49,9 +47,7 @@ public class ReportController {
         }
     }
 
-
-
-    // GET http://localhost:8080/api/reports/risk-pdf/{productId}
+    // Descargar PDF con Análisis de Riesgo (Montecarlo) para un producto
     @GetMapping("/risk-pdf/{productId}")
     public ResponseEntity<byte[]> downloadRiskReport(@PathVariable Long productId) {
         try {

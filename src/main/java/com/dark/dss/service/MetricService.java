@@ -39,6 +39,7 @@ public class MetricService {
         return metricRepository.findByProductIdOrderByDateAsc(productId);
     }
 
+    // Buscar por ID
     public Metric findById(Long id) {
         return metricRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Métrica no encontrada con ID: " + id));
@@ -66,6 +67,7 @@ public class MetricService {
         metric.setAdSpend(details.getAdSpend());
         metric.setRevenue(details.getRevenue());
 
+        // Si mandan un producto nuevo, lo actualizamos
         if (details.getProduct() != null) {
             Product product = productRepository.findById(details.getProduct().getId())
                     .orElseThrow(() -> new RuntimeException("El producto especificado no existe."));
@@ -82,7 +84,7 @@ public class MetricService {
 
 
 
-    // --- CARGA MASIVA FLEXIBLE ---
+    // CARGA MASIVA
     public String saveMetricsFromExcel(MultipartFile file) {
         if (file.isEmpty()) {
             throw new RuntimeException("El archivo Excel está vacío.");
@@ -91,6 +93,7 @@ public class MetricService {
         List<Metric> metricsList = new ArrayList<>();
         int rowCount = 0;
 
+        // Leer Excel
         try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0);
 
@@ -101,6 +104,7 @@ public class MetricService {
                 String asin = getCellValueAsString(row.getCell(0));
                 if (asin.trim().isEmpty()) continue;
 
+                // Verificamos existencia del producto para no romper la integridad referencial
                 Product product = productRepository.findByAsin(asin)
                         .orElseThrow(() -> new RuntimeException("Fila " + (row.getRowNum() + 1) + ": No existe producto con ASIN " + asin));
 
@@ -132,6 +136,7 @@ public class MetricService {
                 }
             }
 
+            // Guardar todas las métricas
             metricRepository.saveAll(metricsList);
             return "Carga exitosa: Se procesaron " + rowCount + " métricas.";
 
@@ -140,7 +145,7 @@ public class MetricService {
         }
     }
 
-    // --- HELPER DE FECHAS MEJORADO ---
+    // HELPER DE FECHAS
     private LocalDate parseExcelDate(Cell cell) {
         if (cell == null) throw new RuntimeException("Celda de fecha vacía");
 
@@ -185,6 +190,7 @@ public class MetricService {
         throw new RuntimeException("Formato de fecha no reconocido: '" + dateStr + "'. Use dd/MM/yyyy o yyyy-MM-dd.");
     }
 
+    // HELPER DE VALORES
     private String getCellValueAsString(Cell cell) {
         if (cell == null) return "";
         switch (cell.getCellType()) {
@@ -195,6 +201,7 @@ public class MetricService {
         }
     }
 
+    // HELPER DE VALORES
     private double getCellValueAsDouble(Cell cell) {
         if (cell == null) return 0.0;
         switch (cell.getCellType()) {

@@ -2,9 +2,9 @@ package com.dark.dss.controller;
 
 import com.dark.dss.entity.User;
 import com.dark.dss.service.UserService;
-import jakarta.validation.Valid; // Importante para validar datos
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication; // Para saber quién está logueado
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +20,7 @@ public class UserController {
         this.userService = userService;
     }
 
+    // Inicio de sesion
     @GetMapping("/me")
     public ResponseEntity<User> getCurrentUser(Authentication authentication) {
         // Spring Security inyecta automáticamente la info del usuario logueado en 'authentication'
@@ -31,33 +32,34 @@ public class UserController {
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        // (Opcional) Por seguridad, borramos el password antes de enviarlo
-        user.setPassword(null);
-
         return ResponseEntity.ok(user);
     }
-    // ------------------------------------------------
 
+    // Listar todos
     @GetMapping
     public List<User> getAll() {
         return userService.findAll();
     }
 
+    // Buscar por ID
     @GetMapping("/{id}")
     public ResponseEntity<User> getById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.findById(id));
     }
 
+    // Crear
     @PostMapping
     public ResponseEntity<User> create(@Valid @RequestBody User user) {
         return ResponseEntity.ok(userService.createUser(user));
     }
 
+    // Actualizar
     @PutMapping("/{id}")
     public ResponseEntity<User> update(@PathVariable Long id, @RequestBody User user) {
         return ResponseEntity.ok(userService.updateUser(id, user));
     }
 
+    // Eliminar
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         userService.deleteUser(id);

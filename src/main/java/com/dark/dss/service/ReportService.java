@@ -97,9 +97,8 @@ public class ReportService {
         table.addCell(header);
     }
 
-    /**
-     * Generar Excel con todo el Histórico de Métricas
-     */
+    //Generar Excel el Historico de Métricas
+
     public byte[] generateMetricsExcel() throws IOException {
         try (Workbook workbook = new XSSFWorkbook();
              ByteArrayOutputStream out = new ByteArrayOutputStream()) {
@@ -146,13 +145,7 @@ public class ReportService {
         }
     }
 
-
-    // ... imports existentes ...
-    // Asegúrate de importar tu servicio de predicción
-
-    /**
-     * Reporte PDF Detallado de Riesgo (Montecarlo) para un producto
-     */
+    // Reporte PDF Detallado de Riesgo (Montecarlo) para un producto
     public byte[] generateRiskPdf(Long productId) throws DocumentException {
         // 1. Obtener datos
         Product product = productRepository.findById(productId)

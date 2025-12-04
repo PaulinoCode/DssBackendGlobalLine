@@ -18,7 +18,7 @@ public class PredictionController {
     }
 
     /**
-     * RF-07: Endpoint para Predicción de Ventas
+     * Endpoint para Predicción de Ventas
      * URL: POST http://localhost:8080/api/predict/sales/{id_producto}?adSpend={monto}
      */
     @PostMapping("/sales/{productId}")
@@ -35,7 +35,7 @@ public class PredictionController {
     }
 
     /**
-     * RF-08: Endpoint para Análisis de Riesgo (Montecarlo)
+     * Endpoint para Análisis de Riesgo (Montecarlo)
      * URL: GET http://localhost:8080/api/predict/risk/{id_producto}
      */
     @GetMapping("/risk/{productId}")
@@ -49,7 +49,9 @@ public class PredictionController {
         }
     }
 
-    // GET /api/predict/correlation/{productId}
+    /** Endpoint para Análisis de Correlación
+     * URL: GET http://localhost:8080/api/predict/correlation/{id_producto}
+     */
     @GetMapping("/correlation/{productId}")
     public ResponseEntity<Map<String, Object>> getCorrelation(@PathVariable Long productId) {
         try {

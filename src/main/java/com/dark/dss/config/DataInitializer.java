@@ -24,7 +24,7 @@ public class DataInitializer {
                 admin.setPassword(passwordEncoder.encode("12345"));
 
                 userRepository.save(admin);
-                System.out.println("✅ Usuario ADMIN creado automáticamente: admin@globalline.com / 12345");
+                System.out.println("Usuario ADMIN creado automáticamente: admin@globalline.com / 12345");
             }
 
             // Creamos un manager de prueba también
@@ -36,7 +36,7 @@ public class DataInitializer {
                 manager.setPassword(passwordEncoder.encode("12345"));
 
                 userRepository.save(manager);
-                System.out.println("✅ Usuario MANAGER creado automáticamente");
+                System.out.println("Usuario MANAGER creado automáticamente: manager@globalline.com / 12345");
             }
         };
     }

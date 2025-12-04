@@ -21,23 +21,25 @@ public class MetricController {
         this.metricService = metricService;
     }
 
+    // Listar todos
     @GetMapping
     public List<Metric> getAll() {
         return metricService.findAll();
     }
 
     // Endpoint para Gráficas: Histórico de un producto
-    // GET /api/metrics/product/1
     @GetMapping("/product/{productId}")
     public List<Metric> getByProduct(@PathVariable Long productId) {
         return metricService.findByProduct(productId);
     }
 
+    // Ver por ID
     @GetMapping("/{id}")
     public ResponseEntity<Metric> getById(@PathVariable Long id) {
         return ResponseEntity.ok(metricService.findById(id));
     }
 
+    // Crear
     @PostMapping
     public ResponseEntity<?> create(@RequestBody Metric metric) {
         try {
@@ -47,7 +49,7 @@ public class MetricController {
         }
     }
 
-
+    // Actualizar
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Metric metric) {
         try {
@@ -57,14 +59,14 @@ public class MetricController {
         }
     }
 
+    // Eliminar
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         metricService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
-    // --- ENDPOINT DE CARGA MASIVA ---
-    // POST http://localhost:8080/api/metrics/upload
+    // ENDPOINT DE CARGA MASIVA
     @PostMapping("/upload")
     public ResponseEntity<?> uploadMetrics(@RequestParam("file") MultipartFile file) {
         try {

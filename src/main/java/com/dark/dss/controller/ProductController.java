@@ -20,19 +20,19 @@ public class ProductController {
         this.productService = productService;
     }
 
-    // Ver todos
+    // Listar todos
     @GetMapping
     public List<Product> getAll() {
         return productService.findAll();
     }
 
-    // Ver uno
+    // Ver por ID
     @GetMapping("/{id}")
     public Product getById(@PathVariable Long id) {
         return productService.findById(id);
     }
 
-    // Ver productos de UN cliente (Ej: /api/products/client/1)
+    // Ver por de un cliente
     @GetMapping("/client/{clientId}")
     public List<Product> getByClient(@PathVariable Long clientId) {
         return productService.findByClientId(clientId);
@@ -48,7 +48,7 @@ public class ProductController {
         }
     }
 
-    // Editar
+    // Actualizar
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody Product product) {
         try {
