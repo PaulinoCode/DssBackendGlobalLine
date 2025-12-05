@@ -1,0 +1,13 @@
+services:
+  myDB:
+    image: postgres
+    container_name: dss_postgres
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=dss_db
+    volumes:
+      - ./.postgres:/var/lib/postgresql/data
