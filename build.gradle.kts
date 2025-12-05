@@ -45,6 +45,8 @@ dependencies {
     // 3. REPORTES EXCEL (Apache POI)
     implementation("org.apache.poi:poi-ooxml:5.2.3")
     implementation("org.bytedeco:openblas-platform:0.3.21-1.5.8")
+
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.14")
 }
 
 tasks.withType<Test> {
