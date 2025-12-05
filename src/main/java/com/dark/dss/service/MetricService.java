@@ -105,6 +105,7 @@ public class MetricService {
                 if (asin.trim().isEmpty()) continue;
 
                 // Verificamos existencia del producto para no romper la integridad referencial
+                // TODO: OPTIMIZAR BUSCA DE ASIN, GUARDAR TODOS Y DESPUES COMPARARLOS
                 Product product = productRepository.findByAsin(asin)
                         .orElseThrow(() -> new RuntimeException("Fila " + (row.getRowNum() + 1) + ": No existe producto con ASIN " + asin));
 

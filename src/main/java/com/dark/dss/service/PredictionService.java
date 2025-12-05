@@ -75,7 +75,7 @@ public class PredictionService {
         double basePrice = product.getPrice();
         double baseCost = product.getCost();
 
-        int iterations = 1000;
+        int iterations = 10000;
         int profitableScenarios = 0;
         int lossScenarios = 0;
         Random random = new Random();
