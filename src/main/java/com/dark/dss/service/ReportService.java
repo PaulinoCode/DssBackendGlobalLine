@@ -97,17 +97,18 @@ public class ReportService {
         table.addCell(header);
     }
 
-    //Generar Excel el Historico de Métricas
-
+    /**
+     * Generar Excel el Histórico de Métricas
+     */
     public byte[] generateMetricsExcel() throws IOException {
         try (Workbook workbook = new XSSFWorkbook();
              ByteArrayOutputStream out = new ByteArrayOutputStream()) {
 
             Sheet sheet = workbook.createSheet("Histórico de Métricas");
 
-            // Encabezados
+            // 1. Encabezados en el nuevo orden
             Row headerRow = sheet.createRow(0);
-            String[] columns = {"ID Métrica", "Fecha", "Producto (ASIN)", "Nombre Producto", "Inversión Ads", "Unidades Vendidas", "Ingresos"};
+            String[] columns = {"ID Métrica", "Nombre Producto", "Producto (ASIN)", "Fecha", "Unidades Vendidas", "Inversión Ads", "Ingresos"};
 
             // Estilo negrita para encabezados
             CellStyle headerStyle = workbook.createCellStyle();
@@ -121,17 +122,17 @@ public class ReportService {
                 cell.setCellStyle(headerStyle);
             }
 
-            // Llenado de datos
+            // 2. Llenado de datos en el nuevo orden
             List<Metric> metrics = metricRepository.findAll();
             int rowIdx = 1;
             for (Metric metric : metrics) {
                 Row row = sheet.createRow(rowIdx++);
                 row.createCell(0).setCellValue(metric.getId());
-                row.createCell(1).setCellValue(metric.getDate().toString());
+                row.createCell(1).setCellValue(metric.getProduct().getName());
                 row.createCell(2).setCellValue(metric.getProduct().getAsin());
-                row.createCell(3).setCellValue(metric.getProduct().getName());
-                row.createCell(4).setCellValue(metric.getAdSpend());
-                row.createCell(5).setCellValue(metric.getSalesUnits());
+                row.createCell(3).setCellValue(metric.getDate().toString());
+                row.createCell(4).setCellValue(metric.getSalesUnits());
+                row.createCell(5).setCellValue(metric.getAdSpend());
                 row.createCell(6).setCellValue(metric.getRevenue());
             }
 
@@ -199,7 +200,4 @@ public class ReportService {
         document.close();
         return out.toByteArray();
     }
-
-
-
 }
