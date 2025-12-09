@@ -32,8 +32,9 @@ public class PredictionService {
     public Map<String, Object> predictSales(Long productId, Double futureAdSpend) {
         List<Metric> history = metricRepository.findByProductIdOrderByDateAsc(productId);
 
-        if (history.size() < 2) {
-            throw new RuntimeException("Se necesitan al menos 2 registros históricos para predecir.");
+        // CAMBIO: Se requieren al menos 3 puntos para que el modelo OLS sea "sobredeterminado".
+        if (history.size() < 3) {
+            throw new RuntimeException("Se necesitan al menos 3 registros históricos para una predicción fiable.");
         }
 
         // Preparar datos para Smile en un DataFrame
