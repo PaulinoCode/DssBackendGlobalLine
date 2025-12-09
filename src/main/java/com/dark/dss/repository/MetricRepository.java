@@ -3,11 +3,20 @@ package com.dark.dss.repository;
 import com.dark.dss.entity.Metric;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface MetricRepository extends JpaRepository<Metric, Long> {
     // Buscar historial ordenado por fecha (importante para la predicción)
     List<Metric> findByProductIdOrderByDateAsc(Long productId);
+
+    // OPTIMIZACIÓN: Buscar métricas para múltiples productos de una vez
+    @Query("SELECT m FROM Metric m JOIN FETCH m.product WHERE m.product.id IN :productIds ORDER BY m.product.id ASC, m.date ASC")
+    List<Metric> findByProductIdInOrderByProductIdAscDateAsc(@Param("productIds") List<Long> productIds);
+
+    // OPTIMIZACIÓN: Buscar todas las métricas con producto y cliente cargados (evita N+1)
+    @Query("SELECT m FROM Metric m JOIN FETCH m.product p LEFT JOIN FETCH p.client")
+    List<Metric> findAllWithProduct();
 
     //ADMIN
     //KPI Global: Dinero total histórico

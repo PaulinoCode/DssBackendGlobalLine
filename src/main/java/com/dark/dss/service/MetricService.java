@@ -14,9 +14,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class MetricService {
@@ -39,26 +37,64 @@ public class MetricService {
         return metricRepository.findByProductIdOrderByDateAsc(productId);
     }
 
+    // OPTIMIZACIÓN: Buscar métricas para múltiples productos de una vez
+    public Map<Long, List<Metric>> findByMultipleProducts(List<Long> productIds) {
+        List<Metric> allMetrics = metricRepository.findByProductIdInOrderByProductIdAscDateAsc(productIds);
+        Map<Long, List<Metric>> metricsByProduct = new HashMap<>();
+
+        for (Metric metric : allMetrics) {
+            Long productId = metric.getProduct().getId();
+            metricsByProduct.computeIfAbsent(productId, k -> new ArrayList<>()).add(metric);
+        }
+
+        return metricsByProduct;
+    }
+
+    // OPTIMIZACIÓN: Obtener métricas agrupadas por cliente
+    public Map<String, List<Metric>> findMetricsGroupedByClient() {
+        List<Metric> allMetrics = metricRepository.findAllWithProduct();
+        Map<String, List<Metric>> metricsByClient = new HashMap<>();
+
+        for (Metric metric : allMetrics) {
+            String clientName = metric.getProduct().getClient() != null ?
+                              metric.getProduct().getClient().getName() : "Sin Cliente Asignado";
+            metricsByClient.computeIfAbsent(clientName, k -> new ArrayList<>()).add(metric);
+        }
+
+        return metricsByClient;
+    }
+
+    // OPTIMIZACIÓN: Método para ReportService - obtiene todas las métricas con relaciones cargadas
+    public List<Metric> getAllMetricsWithProductAndClient() {
+        return metricRepository.findAllWithProduct();
+    }
+
     // Buscar por ID
     public Metric findById(Long id) {
         return metricRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Métrica no encontrada con ID: " + id));
     }
 
-    // Guardar
+    // Guardar OPTIMIZADO
     public Metric save(Metric metric) {
         if (metric.getProduct() == null || metric.getProduct().getId() == null) {
             throw new RuntimeException("Es necesario especificar el producto (product_id).");
         }
 
-        // Verificamos existencia del producto para no romper la integridad referencial
-        productRepository.findById(metric.getProduct().getId())
-                .orElseThrow(() -> new RuntimeException("El producto especificado no existe."));
+        // OPTIMIZACIÓN: Solo verificar existencia del producto si no está completamente cargado
+        Long productId = metric.getProduct().getId();
+        if (metric.getProduct().getName() == null || metric.getProduct().getAsin() == null) {
+            // Si el producto no está completamente cargado, lo buscamos
+            Product fullProduct = productRepository.findById(productId)
+                    .orElseThrow(() -> new RuntimeException("El producto especificado no existe."));
+            metric.setProduct(fullProduct);
+        }
+        // Si el producto ya está completamente cargado, no hacemos consulta adicional
 
         return metricRepository.save(metric);
     }
 
-    // Actualizar
+    // Actualizar OPTIMIZADO
     public Metric update(Long id, Metric details) {
         Metric metric = findById(id);
 
@@ -67,11 +103,15 @@ public class MetricService {
         metric.setAdSpend(details.getAdSpend());
         metric.setRevenue(details.getRevenue());
 
-        // Si mandan un producto nuevo, lo actualizamos
-        if (details.getProduct() != null) {
-            Product product = productRepository.findById(details.getProduct().getId())
-                    .orElseThrow(() -> new RuntimeException("El producto especificado no existe."));
-            metric.setProduct(product);
+        // OPTIMIZACIÓN: Si mandan un producto nuevo, lo actualizamos con validación
+        if (details.getProduct() != null && details.getProduct().getId() != null) {
+            Long newProductId = details.getProduct().getId();
+            // Solo buscar el producto si es diferente al actual
+            if (metric.getProduct() == null || !newProductId.equals(metric.getProduct().getId())) {
+                Product product = productRepository.findById(newProductId)
+                        .orElseThrow(() -> new RuntimeException("El producto especificado no existe."));
+                metric.setProduct(product);
+            }
         }
 
         return metricRepository.save(metric);
@@ -82,7 +122,7 @@ public class MetricService {
         metricRepository.deleteById(id);
     }
 
-    // CARGA MASIVA
+    // CARGA MASIVA OPTIMIZADA
     public String saveMetricsFromExcel(MultipartFile file) {
         if (file.isEmpty()) {
             throw new RuntimeException("El archivo Excel está vacío.");
@@ -90,6 +130,15 @@ public class MetricService {
 
         List<Metric> metricsList = new ArrayList<>();
         int rowCount = 0;
+
+        // OPTIMIZACIÓN: Cargar todos los productos una sola vez al inicio
+        List<Product> allProducts = productRepository.findAll();
+        Map<String, Product> productsByAsin = new HashMap<>();
+        for (Product product : allProducts) {
+            productsByAsin.put(product.getAsin(), product);
+        }
+
+        System.out.println("Productos cargados en memoria: " + productsByAsin.size());
 
         // Leer Excel
         try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
@@ -102,10 +151,11 @@ public class MetricService {
                 String asin = getCellValueAsString(row.getCell(0));
                 if (asin.trim().isEmpty()) continue;
 
-                // Verificamos existencia del producto para no romper la integridad referencial
-                // TODO: OPTIMIZAR BUSCA DE ASIN, GUARDAR TODOS Y DESPUES COMPARARLOS
-                Product product = productRepository.findByAsin(asin)
-                        .orElseThrow(() -> new RuntimeException("Fila " + (row.getRowNum() + 1) + ": No existe producto con ASIN " + asin));
+                // OPTIMIZACIÓN: Búsqueda en memoria en lugar de consulta a BD
+                Product product = productsByAsin.get(asin);
+                if (product == null) {
+                    throw new RuntimeException("Fila " + (row.getRowNum() + 1) + ": No existe producto con ASIN " + asin);
+                }
 
                 // 2. FECHA (Soporta múltiples formatos)
                 LocalDate date;
@@ -135,9 +185,12 @@ public class MetricService {
                 }
             }
 
-            // Guardar todas las métricas
-            metricRepository.saveAll(metricsList);
-            return "Carga exitosa: Se procesaron " + rowCount + " métricas.";
+            // OPTIMIZACIÓN: Guardar todas las métricas de una vez (batch insert)
+            if (!metricsList.isEmpty()) {
+                metricRepository.saveAll(metricsList);
+            }
+
+            return "Carga exitosa: Se procesaron " + rowCount + " métricas de " + productsByAsin.size() + " productos disponibles.";
 
         } catch (IOException e) {
             throw new RuntimeException("Error al leer archivo: " + e.getMessage());

@@ -1,6 +1,6 @@
 services:
   myDB:
-    image: postgres
+    image: postgres:18-alpine3.23
     container_name: dss_postgres
     restart: always
     ports:
@@ -10,4 +10,7 @@ services:
       - POSTGRES_PASSWORD=root
       - POSTGRES_DB=dss_db
     volumes:
-      - ./.postgres:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
