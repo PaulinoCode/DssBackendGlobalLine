@@ -70,5 +70,15 @@ Demuestra la implementación de conceptos DSS:
 5. **Gestión de Datos**: ETL y validaciones
 6. **Documentación Profesional**: API completamente documentada
 
+## 📋 Análisis de Crash (Referencia)
+
+Este repositorio incluye documentación de análisis de un crash de IntelliJ IDEA GitHub Copilot plugin para propósitos de referencia:
+
+- **[CRASH_SUMMARY.md](CRASH_SUMMARY.md)** - Resumen ejecutivo del análisis
+- **[COPILOT_CRASH_ANALYSIS.md](COPILOT_CRASH_ANALYSIS.md)** - Análisis técnico detallado
+- **[ACTION_ITEMS.md](ACTION_ITEMS.md)** - Plan de acción para resolución
+
+> **Nota**: Esta documentación analiza un crash del plugin de Copilot para IntelliJ IDEA (código Kotlin), no del código de este repositorio (Java Spring Boot). Se incluye como material de referencia sobre análisis de crashes y debugging de race conditions en sistemas concurrentes.
+
 ---
 *Proyecto para demostrar la comprensión de Sistemas de Apoyo a la Decisión utilizando tecnologías empresariales modernas.*
